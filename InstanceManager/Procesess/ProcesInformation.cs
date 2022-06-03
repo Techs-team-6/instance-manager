@@ -4,7 +4,26 @@ namespace InstanceManager.Procesess;
 
 public class ProcesInformation
 {
-    public void GetProcessInformation()
+    public void StartProcess(string path)
+    {
+        try
+        {
+            using (Process myProcess = new Process())
+            {
+                myProcess.StartInfo.UseShellExecute = false;
+                // You can start any process, HelloWorld is a do-nothing example.
+                myProcess.StartInfo.FileName = path;
+                myProcess.StartInfo.CreateNoWindow = true;
+                myProcess.Start();
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
+    
+    public void GetProcessInformation(string path)
         {
             try
             {
@@ -12,9 +31,9 @@ public class ProcesInformation
                 {
                     myProcess.StartInfo.UseShellExecute = false;
                     // You can start any process, HelloWorld is a do-nothing example.
-                    myProcess.StartInfo.FileName = @"C:\Users\cuatr\Desktop\IvanovPetrov.exe";
+                    myProcess.StartInfo.FileName = path;
                     myProcess.StartInfo.CreateNoWindow = true;
-                    var streamReader = myProcess.StandardError;
+                    var streamReader = myProcess.StandardOutput;
                     myProcess.Start();
                     string? line;
                     while ((line = streamReader.ReadLine()) != null)
