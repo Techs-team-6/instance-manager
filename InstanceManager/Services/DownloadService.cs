@@ -1,8 +1,8 @@
 ﻿using System.Net;
 
-namespace InstanceManager.DownloadFiles;
+namespace InstanceManager.Services;
 
-public class Download
+public class DownloadService
 {
     public void DownloadFile(string address, string fileName)
     {
