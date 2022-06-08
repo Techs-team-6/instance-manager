@@ -1,10 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.IO;
 using System.Net;
 using DMConnect.Client;
 using Domain.Dto.DedicatedMachineDto;
-using InstanceManager.DownloadFiles;
-using InstanceManager.Procesess;
-using InstanceManager.SystemInfo;
 
 namespace InstanceManager
 {
@@ -24,24 +22,13 @@ namespace InstanceManager
             }
             else
             {
-                client = new RemoteDedicatedMachineHub(endPoint, machineAgent, 
+                client = new RemoteDedicatedMachineHub(endPoint, machineAgent,
                     new RegisterDto(token, Environment.OSVersion.ToString(), "Description is cool, but no"));
                 File.WriteAllText(fileName, client.MachineId.ToString());
             }
 
             machineAgent.Hub = client;
             client.Start();
-
-            /*ProcesInformation procesInformation = new ProcesInformation();
-            procesInformation.GetProcessInformation();
-
-            var client = new MemoryMetricsClient();
-            var metrics = client.GetMetrics();
-            
-            Console.WriteLine("Операционная система (номер версии):  {0}", Environment.OSVersion);
-            Console.WriteLine("Total: " + metrics.Total);
-            Console.WriteLine("Used : " + metrics.Used);
-            Console.WriteLine("Free : " + metrics.Free);*/
         }
     }
 }
