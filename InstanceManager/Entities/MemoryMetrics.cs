@@ -2,7 +2,7 @@
 
 public class MemoryMetrics
 {
-    public double Total;
-    public double Used;
-    public double Free;
+    public long Total;
+    public long Used;
+    public long Free;
 }
