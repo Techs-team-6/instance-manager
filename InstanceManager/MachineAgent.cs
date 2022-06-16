@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO.Compression;
-using DMConnect.Share;
+﻿using DMConnect.Share;
 using Domain.Dto.DedicatedMachineDto;
 using InstanceManager.Services;
 
@@ -12,9 +9,9 @@ public class MachineAgent : IDedicatedMachineAgent
     private DownloadService _downloadService;
     private readonly Dictionary<Guid, InstanceClient> _instanceClients = new ();
 
-    public MachineAgent()
+    public MachineAgent(DownloadService downloadService)
     {
-        _downloadService = new DownloadService();
+        _downloadService = downloadService;
     }
 
     public IDedicatedMachineHub Hub { get; set; }
