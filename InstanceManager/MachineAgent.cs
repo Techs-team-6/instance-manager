@@ -10,6 +10,7 @@ namespace InstanceManager;
 public class MachineAgent : IDedicatedMachineAgent
 {
     private DownloadService _downloadService;
+    private readonly Dictionary<Guid, InstanceClient> _instanceClients = new ();
 
     public MachineAgent()
     {
@@ -17,32 +18,16 @@ public class MachineAgent : IDedicatedMachineAgent
     }
 
     public IDedicatedMachineHub Hub { get; set; }
-
-    public void StartInstance(StartInstanceDto dto)
+    
+    public void StartInstance(StartInstanceDto dto) 
     {
-        string fileName = dto.InstanceId.ToString() + "/build.zip";
-        _downloadService.DownloadFile(dto.BuildUrl, fileName);
-        ZipFile.ExtractToDirectory(fileName, dto.InstanceId.ToString());
+        if (_instanceClients.TryGetValue(dto.InstanceId, out var instanceClient))
+        {
+            instanceClient.Stop();
+        }
 
-        try
-        {
-            using (Process myProcess = new Process())
-            {
-                myProcess.StartInfo.UseShellExecute = false;
-                myProcess.StartInfo.FileName = dto.InstanceId.ToString() + '/' + dto.StartScript;
-                myProcess.StartInfo.CreateNoWindow = true;
-                var streamReader = myProcess.StandardOutput;
-                myProcess.Start();
-                string? line;
-                while ((line = streamReader.ReadLine()) != null)
-                {
-                    Console.WriteLine(line);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
+        var client = new InstanceClient(dto.InstanceId, dto.BuildUrl, dto.StartScript, _downloadService);
+        _instanceClients[dto.InstanceId] = client;
+        client.Start();
     }
 }
