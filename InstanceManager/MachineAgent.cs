@@ -6,17 +6,17 @@ namespace InstanceManager;
 
 public class MachineAgent : IDedicatedMachineAgent
 {
-    private DownloadService _downloadService;
-    private readonly Dictionary<Guid, InstanceClient> _instanceClients = new ();
+    private readonly DownloadService _downloadService;
+    private readonly IDedicatedMachineHub _hub;
+    private readonly Dictionary<Guid, InstanceClient> _instanceClients = new();
 
-    public MachineAgent(DownloadService downloadService)
+    public MachineAgent(DownloadService downloadService, IDedicatedMachineHub hub)
     {
         _downloadService = downloadService;
+        _hub = hub;
     }
 
-    public IDedicatedMachineHub Hub { get; set; }
-    
-    public void StartInstance(StartInstanceDto dto) 
+    public void StartInstance(StartInstanceDto dto)
     {
         if (_instanceClients.TryGetValue(dto.InstanceId, out var instanceClient))
         {
