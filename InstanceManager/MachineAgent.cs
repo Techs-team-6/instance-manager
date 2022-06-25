@@ -23,7 +23,7 @@ public class MachineAgent : IDedicatedMachineAgent
             instanceClient.Stop();
         }
 
-        var client = new InstanceClient(dto.InstanceId, dto.BuildUrl, dto.StartScript, _downloadService);
+        var client = new InstanceClient(dto.InstanceId, dto.BuildUrl, dto.StartScript, _downloadService, _hub);
         _instanceClients[dto.InstanceId] = client;
         client.Start();
     }
