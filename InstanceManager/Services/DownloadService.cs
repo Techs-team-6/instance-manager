@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-
 namespace InstanceManager.Services;
+using Microsoft.Extensions.Logging;
+
 
 public class DownloadService
 {
