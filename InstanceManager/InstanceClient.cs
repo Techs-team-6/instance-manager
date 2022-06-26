@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using DMConnect.Share;
 using Domain.Dto.DedicatedMachineDto;
+using Domain.Entities.Instances;
 using InstanceManager.Services;
 using ThreadState = System.Threading.ThreadState;
 
@@ -43,6 +44,7 @@ public class InstanceClient
 
     private void Launch()
     {
+        _hub.InstanceSetState(new InstanceSetStateDto(InstanceId, InstanceState.Installing));
         var fileName = Path.Combine(InstanceId.ToString(), "build.zip");
         _downloadService.DownloadFile(BuildUrl, fileName);
         ZipFile.ExtractToDirectory(fileName, InstanceId.ToString());
@@ -63,6 +65,7 @@ public class InstanceClient
             threadError.Start();
 
             myProcess.Start();
+            _hub.InstanceSetState(new InstanceSetStateDto(InstanceId, InstanceState.Running));
             var task = myProcess.WaitForExitAsync();
             task.Wait(_cancellationToken.Token);
         }
