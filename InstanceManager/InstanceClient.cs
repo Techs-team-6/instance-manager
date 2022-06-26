@@ -46,7 +46,7 @@ public class InstanceClient
     {
         _hub.InstanceSetState(new InstanceSetStateDto(InstanceId, InstanceState.Installing));
         var fileName = Path.Combine(InstanceId.ToString(), "build.zip");
-        _downloadService.DownloadFile(BuildUrl, fileName);
+        DownloadService.DownloadFile(BuildUrl, fileName);
         ZipFile.ExtractToDirectory(fileName, InstanceId.ToString());
 
         try
