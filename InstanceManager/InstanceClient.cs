@@ -20,8 +20,12 @@ public class InstanceClient
     private readonly CancellationTokenSource _cancellationToken;
     private ILogger<InstanceClient> _logger;
 
-    public InstanceClient(Guid instanceId, string buildUrl, string startScript, DownloadService downloadService,
-        IDedicatedMachineHub hub, ILogger<InstanceClient> logger)
+    public InstanceClient(Guid instanceId, 
+        string buildUrl, 
+        string startScript, 
+        DownloadService downloadService, 
+        IDedicatedMachineHub hub, 
+        ILogger<InstanceClient> logger)
     {
         InstanceId = instanceId;
         BuildUrl = buildUrl;

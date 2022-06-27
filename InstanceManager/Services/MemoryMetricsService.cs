@@ -23,8 +23,6 @@ public class MemoryMetricsService
         }
         return GetWindowsMetrics();
     }
-
-   
     
     private bool IsUnix()
     {
