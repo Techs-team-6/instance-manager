@@ -1,11 +1,10 @@
-namespace InstanceManager.Services;
 using Microsoft.Extensions.Logging;
 
+namespace InstanceManager.Services;
 
 public class DownloadService
 {
-
-    private ILogger<DownloadService> _logger;
+    private readonly ILogger<DownloadService> _logger;
 
     public DownloadService(ILogger<DownloadService> logger)
     {

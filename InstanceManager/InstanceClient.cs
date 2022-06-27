@@ -18,13 +18,13 @@ public class InstanceClient
     private readonly Thread _thread;
     private readonly IDedicatedMachineHub _hub;
     private readonly CancellationTokenSource _cancellationToken;
-    private ILogger<InstanceClient> _logger;
+    private readonly ILogger<InstanceClient> _logger;
 
-    public InstanceClient(Guid instanceId, 
-        string buildUrl, 
-        string startScript, 
-        DownloadService downloadService, 
-        IDedicatedMachineHub hub, 
+    public InstanceClient(Guid instanceId,
+        string buildUrl,
+        string startScript,
+        DownloadService downloadService,
+        IDedicatedMachineHub hub,
         ILogger<InstanceClient> logger)
     {
         InstanceId = instanceId;
