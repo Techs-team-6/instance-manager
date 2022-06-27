@@ -13,23 +13,22 @@ public class MemoryMetricsService
     {
         _logger = logger;
     }
-
+  
     public MemoryMetrics GetMetrics()
     {
         if (IsUnix())
         {
             return GetUnixMetrics();
         }
-
         return GetWindowsMetrics();
     }
-
+    
     private bool IsUnix()
     {
         _logger.LogInformation("Checking the type of system...");
         var isUnix = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
                      RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-
+        
         return isUnix;
     }
 
