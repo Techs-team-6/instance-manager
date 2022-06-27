@@ -11,13 +11,14 @@ public class DownloadService
         _logger = logger;
     }
 
-    public void DownloadFile(string address, string fileName)
+    public void DownloadFile(string address, FileInfo fileName)
     {
-        var client = new HttpClient();
-        var pathName = Path.Combine("Download", fileName);
         _logger.LogInformation("Downloading File \"{0}\" from \"{1}\" .......\n", fileName, address);
+        var client = new HttpClient();
         var bytes = client.GetByteArrayAsync(address).Result;
-        File.WriteAllBytes(pathName, bytes);
+        Directory.CreateDirectory(fileName.Directory!.FullName);
+        ;
+        File.WriteAllBytes(fileName.FullName, bytes);
         _logger.LogInformation("Successfully Downloaded File \"{0}\" from \"{1}\"", fileName, address);
     }
 }

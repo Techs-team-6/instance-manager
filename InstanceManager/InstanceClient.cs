@@ -19,6 +19,7 @@ public class InstanceClient
     private readonly IDedicatedMachineHub _hub;
     private readonly CancellationTokenSource _cancellationToken;
     private readonly ILogger<InstanceClient> _logger;
+    private Process? _process;
 
     public InstanceClient(Guid instanceId,
         string buildUrl,
@@ -32,7 +33,7 @@ public class InstanceClient
         StartScript = startScript;
         _downloadService = downloadService;
         _hub = hub;
-        _thread = new Thread(Launch);
+        _thread = new Thread(Run);
         _cancellationToken = new CancellationTokenSource();
         _logger = logger;
     }
@@ -45,46 +46,38 @@ public class InstanceClient
     public void Stop()
     {
         _logger.LogInformation("Stop command has been summoned");
-        _cancellationToken.Cancel();
+        if (_process is not null && !_process.HasExited)
+            _process.Kill();
         if (_thread.ThreadState != ThreadState.Unstarted)
             _thread.Join();
     }
 
-    private void Launch()
+    private void Run()
     {
         _hub.InstanceSetState(new InstanceSetStateDto(InstanceId, InstanceState.Installing));
-        var fileName = Path.Combine(InstanceId.ToString(), "build.zip");
+        var fileName = new FileInfo(Path.Combine("Download", $"{InstanceId}.zip"));
         _downloadService.DownloadFile(BuildUrl, fileName);
         _logger.LogInformation("Unpacking...");
-        ZipFile.ExtractToDirectory(fileName, InstanceId.ToString());
+        ZipFile.ExtractToDirectory(fileName.FullName, InstanceId.ToString(), true);
 
-        try
-        {
-            using var myProcess = new Process();
-            myProcess.StartInfo.UseShellExecute = false;
-            myProcess.StartInfo.FileName = InstanceId.ToString() + '/' + StartScript;
-            myProcess.StartInfo.CreateNoWindow = true;
+        _process = new Process();
+        _process.StartInfo.WorkingDirectory = InstanceId.ToString();
+        _process.StartInfo.FileName = Path.Combine(_process.StartInfo.WorkingDirectory, StartScript);
+        _process.StartInfo.RedirectStandardOutput = true;
+        _process.StartInfo.RedirectStandardError = true;
+        _process.Start();
 
-            _logger.LogInformation("Starting thread with output");
-            var threadOut = CreateStreamResendingThread(myProcess.StandardOutput,
-                line => _hub.InstanceStdOut(new InstanceStdOutDto(InstanceId, line)));
-            threadOut.Start();
+        var threadOut = CreateStreamResendingThread(_process.StandardOutput,
+            line => _hub.InstanceStdOut(new InstanceStdOutDto(InstanceId, line)));
+        threadOut.Start();
 
-            _logger.LogInformation("Starting thread with errors");
-            var threadError = CreateStreamResendingThread(myProcess.StandardError,
-                line => _hub.InstanceStdErr(new InstanceStdErrDto(InstanceId, line)));
-            threadError.Start();
+        var threadError = CreateStreamResendingThread(_process.StandardError,
+            line => _hub.InstanceStdErr(new InstanceStdErrDto(InstanceId, line)));
+        threadError.Start();
 
-            _logger.LogInformation("Starting process...");
-            myProcess.Start();
-            _hub.InstanceSetState(new InstanceSetStateDto(InstanceId, InstanceState.Running));
-            var task = myProcess.WaitForExitAsync();
-            task.Wait(_cancellationToken.Token);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
+        _hub.InstanceSetState(new InstanceSetStateDto(InstanceId, InstanceState.Running));
+
+        _process.WaitForExit();
     }
 
     private static Thread CreateStreamResendingThread(TextReader reader, Action<string> action)
