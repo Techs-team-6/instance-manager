@@ -10,11 +10,11 @@ public class MachineAgent : IDedicatedMachineAgent
     private readonly DownloadService _downloadService;
     private readonly IDedicatedMachineHub _hub;
     private readonly Dictionary<Guid, InstanceClient> _instanceClients = new();
-    private ILoggerFactory _loggerFactory;
-    private ILogger<MachineAgent> _logger;
+    private readonly ILoggerFactory _loggerFactory;
+    private readonly ILogger<MachineAgent> _logger;
 
-    public MachineAgent(DownloadService downloadService, 
-        IDedicatedMachineHub hub, 
+    public MachineAgent(DownloadService downloadService,
+        IDedicatedMachineHub hub,
         ILoggerFactory loggerFactory)
     {
         _downloadService = downloadService;
@@ -30,14 +30,14 @@ public class MachineAgent : IDedicatedMachineAgent
             _logger.LogInformation("Stopping instance client due to it being started already");
             instanceClient.Stop();
         }
-        
-        var client = new InstanceClient(dto.InstanceId, 
-            dto.BuildUrl, 
-            dto.StartScript, 
-            _downloadService, 
-            _hub, 
+
+        var client = new InstanceClient(dto.InstanceId,
+            dto.BuildUrl,
+            dto.StartScript,
+            _downloadService,
+            _hub,
             _loggerFactory.CreateLogger<InstanceClient>());
-        _instanceClients[dto.InstanceId] = client; 
+        _instanceClients[dto.InstanceId] = client;
         _logger.LogInformation("Starting instance client");
         client.Start();
     }

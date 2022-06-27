@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using DMConnect.Share;
 using Domain.Dto.DedicatedMachineDto;
+using Domain.Entities.Instances;
 using InstanceManager.Services;
 using Microsoft.Extensions.Logging;
 using ThreadState = System.Threading.ThreadState;
@@ -17,13 +18,13 @@ public class InstanceClient
     private readonly Thread _thread;
     private readonly IDedicatedMachineHub _hub;
     private readonly CancellationTokenSource _cancellationToken;
-    private ILogger<InstanceClient> _logger;
+    private readonly ILogger<InstanceClient> _logger;
 
-    public InstanceClient(Guid instanceId, 
-        string buildUrl, 
-        string startScript, 
-        DownloadService downloadService, 
-        IDedicatedMachineHub hub, 
+    public InstanceClient(Guid instanceId,
+        string buildUrl,
+        string startScript,
+        DownloadService downloadService,
+        IDedicatedMachineHub hub,
         ILogger<InstanceClient> logger)
     {
         InstanceId = instanceId;
@@ -51,6 +52,7 @@ public class InstanceClient
 
     private void Launch()
     {
+        _hub.InstanceSetState(new InstanceSetStateDto(InstanceId, InstanceState.Installing));
         var fileName = Path.Combine(InstanceId.ToString(), "build.zip");
         _downloadService.DownloadFile(BuildUrl, fileName);
         _logger.LogInformation("Unpacking...");
@@ -75,6 +77,7 @@ public class InstanceClient
 
             _logger.LogInformation("Starting process...");
             myProcess.Start();
+            _hub.InstanceSetState(new InstanceSetStateDto(InstanceId, InstanceState.Running));
             var task = myProcess.WaitForExitAsync();
             task.Wait(_cancellationToken.Token);
         }

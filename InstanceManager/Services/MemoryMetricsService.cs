@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using InstanceManager.Entities;
 using Microsoft.Extensions.Logging;
@@ -8,13 +7,13 @@ namespace InstanceManager.Services;
 
 public class MemoryMetricsService
 {
-    private ILogger<MemoryMetricsService> _logger;
+    private readonly ILogger<MemoryMetricsService> _logger;
 
     public MemoryMetricsService(ILogger<MemoryMetricsService> logger)
     {
         _logger = logger;
     }
-    
+  
     public MemoryMetrics GetMetrics()
     {
         if (IsUnix())
